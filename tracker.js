@@ -27,8 +27,8 @@ function startApp() {
         message: "Select an option below.",
         choices: [
                 "View all employees",
-                "View all employees by department",
-                "View all employees by roles",
+                "View all by department",
+                "View all by roles",
                 "Add an employee",
                 "Add department",
                 "Add a role",
@@ -40,10 +40,10 @@ function startApp() {
             case "View all employees":
                 viewAllEmp();
                 break;
-            case "View all employees by department":
+            case "View all by department":
                 viewEmpByDept();
                 break;
-            case "View all roles":
+            case "View all by roles":
                 viewRoles();
                 break;
             case "Add an employee":
@@ -100,8 +100,8 @@ function viewEmpByDept(){
 
 // Function to view all roles in the database
 function viewRoles() {
-    var query = 'SELECT * FROM role';
-    connection.query(query, function(err, res){
+    let rolesQuery = "SELECT employee.first_name, employee.last_name, role.title AS Title FROM employee JOIN role ON employee.role_id = role.id";
+    connection.query(rolesQuery, function(err, res){
         if (err) throw err;
         console.table('All Roles:', res);
         startApp();
