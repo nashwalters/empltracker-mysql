@@ -19,6 +19,7 @@ connection.connect(function(err){
     startApp();
 })
 
+//Function to for initial prompt
 function startApp() {
     inquirer.prompt
     ({
@@ -32,7 +33,7 @@ function startApp() {
                 "Add an employee",
                 "Add department",
                 "Add a role",
-                "Update role",
+                "Update employee role",
                 "EXIT"
             ]
     }).then(function (data) {
@@ -55,7 +56,7 @@ function startApp() {
             case "Add a role":
                 addRole();
                 break;
-            case "Update role":
+            case "Update employee role":
                 updateRole();
             case "EXIT": 
                 endApp();
@@ -65,15 +66,6 @@ function startApp() {
         }
     })
 }
-
-//Function to validate user input
-var validName = (input) => {   
-    //ensure that name isn't empty string or contains numbers                              
-    if ( input === "" || input.match(/\d+/g)!=null) {
-       return "Please enter valid name";
-    }
-     return true;
-} 
 
 // Function to view all employees in the database
 function viewAllEmp() {
@@ -97,7 +89,6 @@ function viewEmpByDept(){
     })
 }
   
-
 // Function to view all roles in the database
 function viewRoles() {
     let rolesQuery = "SELECT employee.first_name, employee.last_name, role.title AS Title FROM employee JOIN role ON employee.role_id = role.id";
@@ -107,6 +98,41 @@ function viewRoles() {
         startApp();
     })
 };
+
+//Function to validate user input
+var validName = (input) => {   
+    //ensure that name isn't empty string or contains numbers                              
+    if ( input === "" || input.match(/\d+/g)!=null) {
+       return "Please enter valid name";
+    }
+     return true;
+} 
+
+//Select Role Quieries Role Title for Add Employee function//
+var roleArray = [];
+function selectRole() {
+  connection.query("SELECT * FROM role", function(err, res) {
+    if (err) throw err
+    for (var i = 0; i < res.length; i++) {
+      roleArray.push(res[i].title);
+    }
+
+  })
+  return roleArray;
+}
+
+//Select Manager Quieries The Managers for Add Employee function 
+var managersArr = [];
+function selectManager() {
+  connection.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", function(err, res) {
+    if (err) throw err
+    for (var i = 0; i < res.length; i++) {
+      managersArr.push(res[i].first_name);
+    }
+
+  })
+  return managersArr;
+}
 
 // Function to add an employee to the database
 function addEmp() {
@@ -127,20 +153,15 @@ function addEmp() {
             },
             {
                 name: 'manager_id',
-                type: 'input', 
-                message: "What is the employee's manager's ID? "
+                type: 'list', 
+                message: "What is the employee's manager's ID? ",
+                choices: selectManager
             },
             {
                 name: 'role', 
                 type: 'list',
-                choices: function() {
-                var roleArray = [];
-                for (let i = 0; i < res.length; i++) {
-                    roleArray.push(res[i].title);
-                }
-                return roleArray;
-                },
-                message: "What is this employee's role? "
+                message: "What is this employee's role? ",
+                choices: selectRole()
                 }
             ]).then(function (data) {
                 let role_id;
@@ -240,52 +261,48 @@ function addRole() {
         })
     })
 };
-
-/*//Function to update roles
-function updateRole() {
-    connection.query("SELECT employee.last_name, role.title FROM employee JOIN role ON employee.role_id = role.id;", function(err, res) {
-    if (err) throw err
-    console.log(res)
-    inquirer.prompt([
-          {
-            name: "lastName",
-            type: "rawlist",
-            choices: function() {
-              var lastName = [];
-              for (var i = 0; i < res.length; i++) {
-                lastName.push(res[i].last_name);
-              }
-              return lastName;
-            },
-            message: "What is the Employee's last name? ",
-          },
-          {
-            name: "role",
-            type: "rawlist",
-            message: "What is the Employees new title? ",
-            choices: addRole()
-          },
-      ]).then(function(val) {
-        var roleId = addRole().indexOf(val.role) + 1
-        connection.query("UPDATE employee SET WHERE ?", 
-        {
-          last_name: val.lastName
-           
-        }, 
-        {
-          role_id: roleId
-           
-        }, 
-        function(err){
-            if (err) throw err
-            console.table(val)
-            startApp()
-        })
   
-    });
-  });
+//Function to update roles
+function updateRole() {
+    const query = "SELECT id, first_name, last_name, role_id  FROM employee";
+        connection.query(query, function(err, res) {
+          if (err) throw err;
+          console.table(res);
+          {
+            inquirer.prompt({
+                type: "input",
+                message: "Which employee needs to be updated? (please use number from id column only)",
+                name: "employee"
+            },
+            {
+                type: "input",
+                message: "What is the new role of the employee?",
+                name: "employerole"
+            
+            });
+          }
+        });
+      }
 
-  }*/
+
+//Function to delete an employee
+/*const removeEmployee = () => {
+    connection.query(allEmployeeQuery, (err, results) => {
+        if (err) throw err;
+        console.log(' ');
+        console.table(chalk.yellow('All Employees'), results)
+        inquirer.prompt([
+            {
+                name: 'IDtoRemove',
+                type: 'input',
+                message: 'Enter the Employee ID of the person to remove:'
+            }
+        ]).then((answer) => {
+            connection.query(`DELETE FROM employees where ?`, { id: answer.IDtoRemove })
+            startApp();
+        })
+    })
+}*/
 
 //Function to exit app
 function endApp() {
