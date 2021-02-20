@@ -13,5 +13,25 @@ const connection = mysql.createConnection({
 // Connect to the mysql server and sql database
 connection.connect(function(err){
     if (err) throw err;
-    //startApp();
+    console.log("\n Welcome to the Employee Database!!\n")
+    console.log("\n-----------------------------------\n")
+    startApp();
 })
+
+function startApp() {
+    inquirer
+    .prompt({
+        name: "action",
+        type: "list",
+        message: "Select an option below.",
+        choices: [
+                "View all employees",
+                "View all departments",
+                "View all roles",
+                "Add an employee",
+                "Add department",
+                "Add a role",
+                "EXIT"
+            ]
+        })
+}
