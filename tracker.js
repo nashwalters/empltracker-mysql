@@ -1,5 +1,6 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
+const consoleTable = require('console.table')
 
 // Create connection to mysql database
 const connection = mysql.createConnection({
@@ -36,7 +37,7 @@ function startApp() {
     }).then(function (data) {
         switch (data.action) {
                 case "View all employees":
-                    //viewEmployees();
+                    viewEmp();
                     break;
                 case "View all departments":
                     //viewDepartments();
@@ -68,6 +69,16 @@ var validName = (input) => {
     }
      return true;
 }  
+function viewEmp() {
+    var query = 'SELECT * FROM employee';
+    connection.query(query, function(err, res) {
+        if (err) throw err;
+        console.log(res.length + ' employees found!');
+        console.table('All Employees:', res); 
+        startApp();
+    })
+};
+
 function addEmp() {
     connection.query("SELECT * FROM role", function (err, res) {
     if (err) throw err;
