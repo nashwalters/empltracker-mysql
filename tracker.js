@@ -52,7 +52,7 @@ function startApp() {
                     addDep();
                     break;
                 case "Add a role":
-                    //addRole();
+                    addRole();
                     break;
                 case "EXIT": 
                     endApp();
@@ -63,7 +63,7 @@ function startApp() {
     })
 }
 
-//function to validate user input
+//Function to validate user input
 var validName = (input) => {   
     //ensure that name isn't empty string or contains numbers                              
     if ( input === "" || input.match(/\d+/g)!=null) {
@@ -72,7 +72,7 @@ var validName = (input) => {
      return true;
 } 
 
-// view all employees in the database
+// Function to view all employees in the database
 function viewEmp() {
     var query = 'SELECT * FROM employee';
     connection.query(query, function(err, res) {
@@ -83,7 +83,7 @@ function viewEmp() {
     })
 };
 
-// view all departments in the database
+// Function to view all departments in the database
 function viewDep() {
     var query = 'SELECT * FROM department';
     connection.query(query, function(err, res) {
@@ -93,7 +93,7 @@ function viewDep() {
     })
 };
 
-// view all roles in the database
+// Function to view all roles in the database
 function viewRoles() {
     var query = 'SELECT * FROM role';
     connection.query(query, function(err, res){
@@ -103,7 +103,7 @@ function viewRoles() {
     })
 };
 
-// add an employee to the database
+// Function to add an employee to the database
 function addEmp() {
     connection.query('SELECT * FROM role', function (err, res) {
         if (err) throw err;
@@ -163,7 +163,7 @@ function addEmp() {
         })
 };
 
-// add a department to the database
+// Function to add a department to the database
 function addDep() {
     inquirer
         .prompt([
@@ -187,8 +187,59 @@ function addDep() {
             })
     })
 };
-           
-       
+
+// Function to add a role to the database
+function addRole() {
+    connection.query('SELECT * FROM department', function(err, res) {
+        if (err) throw err;
+    
+        inquirer 
+        .prompt([
+            {
+                name: 'new_role',
+                type: 'input', 
+                message: "What new role would you like to add?"
+            },
+            {
+                name: 'salary',
+                type: 'input',
+                message: 'What is the salary of this role? (Enter a number)'
+            },
+            {
+                name: 'Department',
+                type: 'list',
+                choices: function() {
+                    var deptArry = [];
+                    for (let i = 0; i < res.length; i++) {
+                    deptArry.push(res[i].name);
+                    }
+                    return deptArry;
+                },
+            }
+        ]).then(function (data) {
+            let department_id;
+            for (let a = 0; a < res.length; a++) {
+                if (res[a].name == data.Department) {
+                    department_id = res[a].id;
+                }
+            }
+    
+            connection.query(
+                'INSERT INTO role SET ?',
+                {
+                    title: answer.new_role,
+                    salary: answer.salary,
+                    department_id: department_id
+                },
+                function (err, res) {
+                    if(err)throw err;
+                    console.log('Your new role has been added!');
+                    console.table('All Roles:', res);
+                    options();
+                })
+        })
+    })
+};
 
 function endApp() {
     connection.end();
