@@ -256,26 +256,48 @@ function addRole() {
   
 //Function to update roles
 function updateRole() {
-    const query = "SELECT id, first_name, last_name, role_id  FROM employee";
-        connection.query(query, function(err, res) {
-          if (err) throw err;
-          console.table(res);
-          {
-            inquirer.prompt({
-                type: "input",
-                message: "Which employee needs to be updated? (please use number from id column only)",
-                name: "employee"
+    let updateQuery = "SELECT employee.last_name, role.title FROM employee JOIN role ON employee.role_id = role.id";
+    connection.query(updateQuery, function(err, res) {
+        if (err) throw err
+        console.log(res)
+        inquirer.prompt([
+            {
+                name: "lastName",
+                type: "rawlist",
+                message: "What is the Employee's last name? ",
+                choices: function() {
+                  var lastName = [];
+                  for (var i = 0; i < res.length; i++) {
+                    lastName.push(res[i].last_name);
+                  }
+                  return lastName;
+                }
             },
             {
-                type: "input",
-                message: "What is the new role of the employee?",
-                name: "employerole"
-            
-            });
-          }
+                name: "role",
+                type: "rawlist",
+                message: "What is the Employees new title? ",
+                choices: selectRole()
+            },
+        ]).then(function(data) {
+            var roleId = selectRole().indexOf(data.role) + 1
+            connection.query("UPDATE employee SET WHERE ?", 
+            {
+              last_name: data.lastName
+               
+            }, 
+            {
+              role_id: roleId
+               
+            }, 
+            function(err){
+                if (err) throw err
+                console.table(data)
+                startApp()
+            })
         });
-      }
-
+    }); 
+}
 
 //Function to delete an employee
 /*const removeEmployee = () => {
