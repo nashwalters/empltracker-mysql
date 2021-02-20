@@ -8,7 +8,7 @@ const connection = mysql.createConnection({
     port: 3306,
     user: "root",
     password: "nashbryce88!",
-    database: "employee_DB"
+    database: "employee_trackerDB"
 })
 
 // Connect to the mysql server and sql database
@@ -122,71 +122,63 @@ function selectRole() {
 }
 
 //Select Manager Quieries The Managers for Add Employee function 
-var managersArr = [];
+var managersArray = [];
 function selectManager() {
   connection.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", function(err, res) {
     if (err) throw err
     for (var i = 0; i < res.length; i++) {
-      managersArr.push(res[i].first_name);
+      managersArray.push(res[i].first_name);
     }
 
   })
-  return managersArr;
+  return managersArray;
 }
 
 // Function to add an employee to the database
 function addEmp() {
-    connection.query('SELECT * FROM role', function (err, res) {
-        if (err) throw err;
-        inquirer.prompt([
-            {
-                name: 'first_name',
-                type: 'input', 
-                message: "Employee's fist name: ",
-                validate: validName
-            },
-            {
-                name: 'last_name',
-                type: 'input', 
-                message: "Employee's last name: ",
-                validate: validName
-            },
-            {
-                name: 'manager_id',
-                type: 'list', 
-                message: "What is the employee's manager's ID? ",
-                choices: selectManager
-            },
-            {
-                name: 'role', 
-                type: 'list',
-                message: "What is this employee's role? ",
-                choices: selectRole()
-                }
-            ]).then(function (data) {
-                let role_id;
-                    for (let a = 0; a < res.length; a++) {
-                    if (res[a].title == data.role) {
-                        role_id = res[a].id;
-                        console.log(role_id)
-                    }                  
-                }  
-                connection.query(
-                'INSERT INTO employee SET ?',
-                {
-                    first_name: data.first_name,
-                    last_name: data.last_name,
-                    manager_id: data.manager_id,
-                    role_id: role_id,
-                },
-                function (err) {
-                if (err) throw err;
-                console.log('Your employee has been added!');
-                startApp();
-            })
-        })
-    })
-};
+    inquirer.prompt([
+        {
+          name: "firstname",
+          type: "input",
+          message: "Enter their first name ",
+          validate: validName
+        },
+        {
+          name: "lastname",
+          type: "input",
+          message: "Enter their last name ",
+          validate: validName
+        },
+        {
+          name: "role",
+          type: "list",
+          message: "What is their role? ",
+          choices: selectRole()
+        },
+        {
+            name: "choice",
+            type: "rawlist",
+            message: "Whats their managers name?",
+            choices: selectManager()
+        }
+    ]).then(function (data) {
+      var roleId = selectRole().indexOf(data.role) + 1
+      var managerId = selectManager().indexOf(data.choice) + 1
+      connection.query("INSERT INTO employee SET ?", 
+      {
+          first_name: val.firstName,
+          last_name: val.lastName,
+          manager_id: managerId,
+          role_id: roleId
+          
+      }, function(err){
+          if (err) throw err
+          console.table(data)
+          startApp()
+      })
+
+  })
+}
 
 // Function to add a department to the database
 function addDep() {
