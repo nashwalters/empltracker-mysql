@@ -43,7 +43,7 @@ function startApp() {
                     viewDep();
                     break;
                 case "View all roles":
-                    //viewRoles();
+                    viewRoles();
                     break;
                 case "Add an employee":
                     addEmp();
@@ -83,11 +83,22 @@ function viewEmp() {
     })
 };
 
+// view all departments in the database
 function viewDep() {
     var query = 'SELECT * FROM department';
     connection.query(query, function(err, res) {
         if(err)throw err;
         console.table('All Departments:', res);
+        startApp();
+    })
+};
+
+// view all roles in the database
+function viewRoles() {
+    var query = 'SELECT * FROM role';
+    connection.query(query, function(err, res){
+        if (err) throw err;
+        console.table('All Roles:', res);
         startApp();
     })
 };
