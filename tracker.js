@@ -40,7 +40,7 @@ function startApp() {
                     viewEmp();
                     break;
                 case "View all departments":
-                    //viewDepartments();
+                    viewDep();
                     break;
                 case "View all roles":
                     //viewRoles();
@@ -62,19 +62,32 @@ function startApp() {
             }
     })
 }
+
+//function to validate user input
 var validName = (input) => {   
     //ensure that name isn't empty string or contains numbers                              
     if ( input === "" || input.match(/\d+/g)!=null) {
        return "Please enter valid name";
     }
      return true;
-}  
+} 
+
+// view all employees in the database
 function viewEmp() {
     var query = 'SELECT * FROM employee';
     connection.query(query, function(err, res) {
         if (err) throw err;
         console.log(res.length + ' employees found!');
         console.table('All Employees:', res); 
+        startApp();
+    })
+};
+
+function viewDep() {
+    var query = 'SELECT * FROM department';
+    connection.query(query, function(err, res) {
+        if(err)throw err;
+        console.table('All Departments:', res);
         startApp();
     })
 };
