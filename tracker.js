@@ -33,5 +33,31 @@ function startApp() {
                 "Add a role",
                 "EXIT"
             ]
+    }).then(function (data) {
+            switch (data.action) {
+                case "View all employees":
+                    //viewEmployees();
+                    break;
+                case "View all departments":
+                    //viewDepartments();
+                    break;
+                case "View all roles":
+                    //viewRoles();
+                    break;
+                case "Add an employee":
+                    //addEmployee();
+                    break;
+                case "Add department":
+                    //addDepartment();
+                    break;
+                case "Add a role":
+                    //addRole();
+                    break;
+                case "EXIT": 
+                    //endApp();
+                    break;
+                default:
+                    break;
+            }
         })
 }
