@@ -103,59 +103,69 @@ function viewRoles() {
     })
 };
 
+// add an employee to the database
 function addEmp() {
-    connection.query("SELECT * FROM role", function (err, res) {
-    if (err) throw err;
-    inquirer
-        .prompt([
-            {
-                name: "firstName",
-                type: "input", 
-                message: "Employee's fist name: ",
-                validate: validName
-            },
-            {
-                name: "lastName",
-                type: "input", 
-                message: "Employee's last name: ",
-                validate: validName
-            },
-            {
-                name: "role", 
-                type: "list",
-                choices: function() {
-                var roleArray = [];
-                for (let i = 0; i < res.length; i++) {
-                    roleArray.push(res[i].title);
-                }
-                return roleArray;
-                },
-                message: "What is this employee's role? "
-            }
-            ]).then(function (data) {
-                let roleId;
-                for (let j = 0; j < res.length; j++) {
-                if (res[j].title == data.role) {
-                    roleId = res[j].id;
-                    console.log(roleId)
-                }                  
-                }  
-                connection.query(
-                "INSERT INTO employees SET ?",
+    connection.query('SELECT * FROM role', function (err, res) {
+        if (err) throw err;
+        inquirer
+            .prompt([
                 {
-                    first_name: data.firstName,
-                    last_name: data.lastName,
-                    role_id: roleId,
+                    name: 'first_name',
+                    type: 'input', 
+                    message: "Employee's fist name: ",
+                    validate: validName
                 },
-                function (err) {
-                    if (err) throw err;
-                    console.log("The employee has been added!");
-                    startApp();
+                {
+                    name: 'last_name',
+                    type: 'input', 
+                    message: "Employee's last name: ",
+                    validate: validName
+                },
+                {
+                    name: 'manager_id',
+                    type: 'input', 
+                    message: "What is the employee's manager's ID? "
+                },
+                {
+                    name: 'role', 
+                    type: 'list',
+                    choices: function() {
+                    var roleArray = [];
+                    for (let i = 0; i < res.length; i++) {
+                        roleArray.push(res[i].title);
+                    }
+                    return roleArray;
+                    },
+                    message: "What is this employee's role? "
                 }
-                )
-            })
-    })
-}
+                ]).then(function (data) {
+                    let role_id;
+                    for (let a = 0; a < res.length; a++) {
+                        if (res[a].title == data.role) {
+                            role_id = res[a].id;
+                            console.log(role_id)
+                        }                  
+                    }  
+                    connection.query(
+                    'INSERT INTO employee SET ?',
+                    {
+                        first_name: data.first_name,
+                        last_name: data.last_name,
+                        manager_id: data.manager_id,
+                        role_id: role_id,
+                    },
+                    function (err) {
+                        if (err) throw err;
+                        console.log('Your employee has been added!');
+                        startApp();
+                    })
+                })
+        })
+};
+
+
+           
+       
 
 function endApp() {
     connection.end();
