@@ -34,7 +34,7 @@ function startApp() {
                 "EXIT"
             ]
     }).then(function (data) {
-            switch (data.action) {
+        switch (data.action) {
                 case "View all employees":
                     //viewEmployees();
                     break;
@@ -54,10 +54,14 @@ function startApp() {
                     //addRole();
                     break;
                 case "EXIT": 
-                    //endApp();
+                    endApp();
                     break;
                 default:
                     break;
             }
-        })
+    })
+}
+
+function endApp() {
+    connection.end();
 }
