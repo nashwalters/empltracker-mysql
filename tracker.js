@@ -49,7 +49,7 @@ function startApp() {
                     addEmp();
                     break;
                 case "Add department":
-                    //addDepartment();
+                    addDep();
                     break;
                 case "Add a role":
                     //addRole();
@@ -163,7 +163,30 @@ function addEmp() {
         })
 };
 
-
+// add a department to the database
+function addDep() {
+    inquirer
+        .prompt([
+            {
+                name: 'newDepartment', 
+                type: 'input', 
+                message: 'Enter the department you want to add:'
+            }
+            ]).then(function (data) {
+                connection.query(
+                    'INSERT INTO department SET ?',
+                    {
+                        name: data.newDepartment
+                    });
+                var query = 'SELECT * FROM department';
+                connection.query(query, function(err, res) {
+                if(err)throw err;
+                console.log('The department has been added!');
+                console.table('All Departments:', res);
+                startApp();
+            })
+    })
+};
            
        
 
