@@ -47,9 +47,9 @@ In order to use this application you will need to first run an npm install in yo
 [Click here to view Demo]()
  
 #### Screenshots
-<img src="" alt="gif of app" width="600px">
-<img src="" alt="main page of app" width="600px">
-<img src="" alt="" width="600px">
+<img src="assets/welcome.JPG" alt="main page of app" width="600px">
+<img src="assets/allemployees.JPG" alt="table with all employees" width="600px">
+<img src="assets/department.JPG" alt=" table with employees" width="600px">
 
 #### Tips
 1. You are able to clone this repo or download a zip file to your local machine.

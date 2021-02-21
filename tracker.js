@@ -27,8 +27,8 @@ function startApp() {
         type: "list",
         message: "Select an option below.",
         choices: [
-                "View departments",
-                "View roles",
+                "View departments only",
+                "View roles only",
                 "View all employees",
                 "View all by department",
                 "View all by roles",
@@ -36,14 +36,15 @@ function startApp() {
                 "Add department",
                 "Add a role",
                 "Update employee",
+                "Delete employee",
                 "EXIT"
             ]
     }).then(function (data) {
         switch (data.action) {
-            case "View departments":
+            case "View departments only":
                 viewDept();
                 break;
-            case "View roles":
+            case "View roles only":
                     viewRoles();
                     break;
             case "View all employees":
@@ -65,7 +66,9 @@ function startApp() {
                 addRole();
                 break;
             case "Update employee":
-                updateRole();
+                updateRole(); 
+            case "delete employee":
+                deleteEmp()        
             case "EXIT": 
                 endApp();
                 break;
@@ -97,7 +100,7 @@ function viewRoles() {
 // Function to view all employees in the database
 function viewAllEmp() {
     // Query to view all employees
-    let AllEmpQuery = "SELECT employee.first_name, employee.last_name, role.title, role.salary, department.name, CONCAT(e.first_name, ' ' ,e.last_name) AS Manager FROM employee INNER JOIN role on role.id = employee.role_id INNER JOIN department on department.id = role.department_id left join employee e on employee.manager_id = e.id";
+    let AllEmpQuery = "SELECT e.id, e.first_name, e.last_name, role.title, department.name AS department, role.salary, concat(m.first_name, ' ' ,  m.last_name) AS manager FROM employee e LEFT JOIN employee m ON e.manager_id = m.id INNER JOIN role ON e.role_id = role.id INNER JOIN department ON role.department_id = department.id ORDER BY ID ASC";
     connection.query(AllEmpQuery, function(err, res) {
         if(err) return err;
         console.table('All Employees:', res); 
@@ -146,6 +149,7 @@ function selectRole() {
 
   })
   return roleArray;
+  
 }
 
 //Select Manager Quieries The Managers for Add Employee function 
@@ -165,13 +169,13 @@ function selectManager() {
 function addEmp() {
     inquirer.prompt([
         {
-          name: "firstName",
+          name: "first_name",
           type: "input",
           message: "Enter their first name ",
           validate: validName
         },
         {
-          name: "lastName",
+          name: "last_name",
           type: "input",
           message: "Enter their last name ",
           validate: validName
@@ -193,8 +197,8 @@ function addEmp() {
       var managerId = selectManager().indexOf(data.choice) + 1
       connection.query("INSERT INTO employee SET ?", 
       {
-          first_name: data.firstName,
-          last_name: data.lastName,
+          first_name: data.first_name,
+          last_name: data.last_name,
           manager_id: managerId,
           role_id: roleId
           
@@ -283,105 +287,35 @@ function addRole() {
   
 //Function to update roles
 function updateRole() {
-    connection.query("SELECT employee.last_name, role.title FROM employee JOIN role ON employee.role_id = role.id;", function(err, res) {
-        if (err) throw err;
-        inquirer.prompt([
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What is the last name of the employee?",
+            name: "last_name"
+        },
+        {
+            type: "rawlist",
+            message: "What is the employee's new role",
+            name: "role",
+            choices: selectRole()
+        },
+    ]).then(function(val) {
+            var roleId = selectRole().indexOf(val.role) + 1
+            connection.query("UPDATE employee SET WHERE ?", 
             {
-                name: "lastName",
-                type: "list",
-                message: "What is the Employee's last name? ",
-               choices: function() {
-                    var lastName = [];
-                    for (var i = 0; i < res.length; i++) {
-                      lastName.push(res[i].last_name);
-                    }
-                    return lastName;
-                    }
+                role_id: roleId
+                
             },
             {
-                name: "role",
-                type: "rawlist",
-                message: "What is the Employees new title? ",
-                choices: selectRole()
-            }
-        ]).then(function(data) {
-        var roleId = selectRole().indexOf(data.role) + 1
-        connection.query("UPDATE employee SET WHERE ?", 
-        {
-          last_name: data.lastName
-        }, 
-        {
-          role_id: roleId
-        }, 
-        function(err){
-            if (err) throw err
-            console.table(data)
-            startApp()
-        })
-    });
-});
-
+                last_name: val.last_name
+               
+            }, 
+            function(err){
+                if (err) throw err
+                startPrompt()
+           })
+     })
 }
-/*function updateRole() {
-        
-    var query = "SELECT employee.id, employee.first_name, employee.last_name, role.title FROM employee INNER JOIN role ON (employee.role_id = role.id) ORDER BY employee.id;"
-    connection.query(query, function(err, results) {
-        if (err) throw err;
-
-        // once you have the employees, prompt the user for which employee they'd like to update
-        inquirer
-          .prompt([
-            {
-                name: "choice",
-                type: "input",
-                message: "Enter the Employee ID of the employee you wish to update:",
-                validate: function(value) {
-                    if (isNaN(value) === false) {
-                        return true;
-                    } else {
-                        console.log(" Error: Please enter a valid number");
-                        return false;
-                    }
-                }
-            },
-            {
-                name: "new_role",
-                type: "input",                  
-                message: "Enter a new role ID for this employee:"
-            }  
-          ])
-          .then(function(answer) {
-            
-            connection.query(
-                "UPDATE employee SET ? WHERE ?",
-                [
-                  {
-                    role_id: answer.new_role
-                  },
-                  {
-                    id: answer.choice
-                  }
-                ],
-                function(error) {
-                    if (error) throw err;   
-
-                    var i = answer.choice;
-                    console.log("\nRole was successfully updated.");
-                }
-              );
-            connection.query("SELECT * FROM employee", function(err, results){
-                if (err) throw err;
-                console.table(results);
-                quit();
-            });
-          });
-        });
-        
-}*/
-
-              
-       
-     
 
 //Function to exit app
 function endApp() {
