@@ -36,7 +36,6 @@ function startApp() {
                 "Add department",
                 "Add a role",
                 "Update employee",
-                "Delete employee",
                 "EXIT"
             ]
     }).then(function (data) {
@@ -45,8 +44,8 @@ function startApp() {
                 viewDept();
                 break;
             case "View roles only":
-                    viewRoles();
-                    break;
+                viewRoles();
+                break;
             case "View all employees":
                 viewAllEmp();
                 break;
@@ -54,7 +53,7 @@ function startApp() {
                 viewEmpByDept();
                 break;
             case "View all by roles":
-                viewRoles();
+                viewEmpRoles();
                 break;
             case "Add an employee":
                 addEmp();
@@ -66,9 +65,7 @@ function startApp() {
                 addRole();
                 break;
             case "Update employee":
-                updateRole(); 
-            case "delete employee":
-                deleteEmp()        
+                updateRole();        
             case "EXIT": 
                 endApp();
                 break;
@@ -120,7 +117,7 @@ function viewEmpByDept(){
 }
   
 // Function to view all roles in the database
-function viewRoles() {
+function viewEmpRoles() {
     let rolesQuery = "SELECT employee.first_name, employee.last_name, role.title AS Title FROM employee JOIN role ON employee.role_id = role.id";
     connection.query(rolesQuery, function(err, res){
         if (err) throw err;
