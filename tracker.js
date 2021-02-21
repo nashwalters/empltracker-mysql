@@ -118,7 +118,7 @@ function viewEmpByDept(){
   
 // Function to view all roles in the database
 function viewEmpRoles() {
-    let rolesQuery = "SELECT employee.first_name, employee.last_name, role.title AS Title FROM employee JOIN role ON employee.role_id = role.id";
+    let rolesQuery = "SELECT employee.first_name, employee.last_name,  FROM employee JOIN role ON employee.role_id = role.id";
     connection.query(rolesQuery, function(err, res){
         if (err) throw err;
         console.table('All Roles:', res);
@@ -284,35 +284,40 @@ function addRole() {
   
 //Function to update roles
 function updateRole() {
-    inquirer.prompt([
-        {
-            type: "input",
-            message: "What is the last name of the employee?",
-            name: "last_name"
-        },
-        {
-            type: "rawlist",
-            message: "What is the employee's new role",
-            name: "role",
-            choices: selectRole()
-        },
-    ]).then(function(val) {
-            var roleId = selectRole().indexOf(val.role) + 1
-            connection.query("UPDATE employee SET WHERE ?", 
-            {
-                role_id: roleId
-                
-            },
-            {
-                last_name: val.last_name
-               
-            }, 
-            function(err){
-                if (err) throw err
-                startPrompt()
-           })
-     })
+    let query = "SELECT id, first_name, last_name, role_id, FROM employee";
+    connection.query(query, function(err, res) {
+    if (err) throw err;
+    console.table(res)
+    inquirer
+    .prompt({
+      name: "id",
+      type: "input",
+      message: "Enter the employee id for the employee you want to update:",
+    })
+    .then(function (answer) {
+      var id = answer.id;
+
+      inquirer
+        .prompt({
+          name: "roleId",
+          type: "input",
+          message: "Enter new role id",
+        })
+        .then(function (answer) {
+          var roleId = answer.roleId;
+
+          var query = "UPDATE employee SET role_id=? WHERE id=?";
+          connection.query(query, [roleId, id], function (err, res) {
+            if (err) {
+              console.log(err);
+            }
+            startApp();
+            });
+        })
+    })
+})
 }
+
 
 //Function to exit app
 function endApp() {
